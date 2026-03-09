@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,8 +15,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import rkt.jde.filter.JwtFilter;
 
-
 @Configuration
+@EnableMethodSecurity // Add this to enable @PreAuthorize on your Controllers
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
@@ -38,21 +39,34 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            // Updated CORS configuration
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/jde/**").permitAll() 
+                // 1. Public Endpoints (No login required)
+                .requestMatchers("/api/auth/**").permitAll() 
+
+                // 2. Sales Endpoints (Requires ADMIN or SALES role)
+                .requestMatchers("/api/sales/**").hasAnyRole("ADMIN", "SALES")
+
+                // 3. Purchase Endpoints (Requires ADMIN or PURCHASE role)
+                .requestMatchers("/api/purchase/**").hasAnyRole("ADMIN", "PURCHASE")
+
+                // 4. Inventory Endpoints (Requires ADMIN or INVENTORY role)
+                .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "INVENTORY")
+
+                // 5. Technical JDE Endpoints (Requires ADMIN or TECH role)
+                .requestMatchers("/api/jde/**").hasAnyRole("ADMIN", "JDE_TECH")
+                
+                // 6. Profile & Other routes (Anyone authenticated)
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    } //
+    }
 
-    // Add this bean to explicitly allow your React Frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
