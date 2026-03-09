@@ -1,0 +1,263 @@
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --bg-light: #f8fafc;
+  --text-dark: #0f172a;
+  --text-gray: #64748b;
+  --white: #ffffff;
+  --border: #e2e8f0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+}
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Sidebar Styling - Exactly as per Screenshot */
+.sidebar {
+  width: 260px;
+  background-color: var(--white);
+  border-right: 1px solid var(--border);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-container {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.logo-image {
+  max-width: 100%;
+  height: 100px;
+}
+
+.nav-item {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: var(--text-gray);
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: 0.2s;
+}
+
+.nav-item.active,
+.nav-item:hover {
+  background-color: #eef2ff;
+  color: var(--primary);
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 4rem;
+  overflow-y: auto;
+}
+
+.content-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.content-header p {
+  color: var(--text-gray);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+/* Card Grid Layout */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.erp-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.erp-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.connected-card {
+  border: 2px solid #38b2ac !important;
+  box-shadow: 0 4px 20px rgba(56, 178, 172, 0.15);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.erp-logo-box {
+  width: 50px;
+  height: 50px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border-radius: 12px;
+  color: var(--primary);
+}
+
+/* Status Badges */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.status-badge.online {
+  background-color: #e6fffa;
+  color: #2c7a7b;
+  border: 1px solid #b2f5ea;
+}
+
+.status-badge.offline {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #edf2f7;
+}
+
+.feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.tag {
+  background: #f1f5f9;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  border-radius: 6px;
+  color: #475569;
+}
+
+/* Buttons */
+.configure-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-top: auto;
+}
+
+.configure-btn:hover {
+  background: var(--primary-dark);
+}
+
+.disconnect-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #fff;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: auto;
+}
+
+.disconnect-btn:hover {
+  background-color: #fff5f5;
+  border-color: #fc8181;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--white);
+  width: 550px;
+  padding: 2.5rem;
+  border-radius: 24px;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.custom-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  background: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.save-btn {
+  flex: 2;
+  padding: 0.8rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
