@@ -4,6 +4,7 @@ import Login from './Login';
 import Integration from './Integration';
 import InventoryInquiry from './InventoryInquiry';
 import JDEDashboard from './JDEDashboard'; // Import the new separate component
+import SignUp from './Signup';
 
 const PrivateRoute = ({ children }) => {
     const isAuthenticated = !!localStorage.getItem('token');
@@ -15,6 +16,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/register" element={<SignUp/>} />
                 
                 {/* 1. The Integrations Hub (The page you already have) */}
                 <Route 
