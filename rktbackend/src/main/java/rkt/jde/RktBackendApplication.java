@@ -8,6 +8,6 @@ public class RktBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RktBackendApplication.class, args);
-	}
+	} 
 
 }
