@@ -1,28 +1,30 @@
 package rkt.jde.entity;
 
 import java.util.List;
-
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "user_master") // Maps to a table named user_master in your DB
 public class User {
-	
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     
-    private String name;
-
+    @Column(unique = true, nullable = false)
+    private String name; // Stores the 'username' from the signup page
+    
+    @Column(nullable = false)
     private String password;
+    
+    private String fullName;
+    private String email;
+    private String phone;
+    private String company;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     private List<String> roles;
-
 }

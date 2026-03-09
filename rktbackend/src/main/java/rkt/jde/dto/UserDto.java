@@ -1,32 +1,26 @@
 package rkt.jde.dto;
 
 import java.util.List;
+import lombok.Data;
 
 public class UserDto {
 
+    @Data
     public static class RegisterRequest {
-        private String name;
+        private String fullName;
+        private String username; 
+        private String email;
+        private String phone;
+        private String company;
         private String password;
         private List<String> roles;
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
-
-        public List<String> getRoles() { return roles; }
-        public void setRoles(List<String> roles) { this.roles = roles; }
     }
+    
+    
 
+    @Data
     public static class AuthRequest {
-        private String name;
+        private String name; // This is used for login
         private String password;
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
     }
 }

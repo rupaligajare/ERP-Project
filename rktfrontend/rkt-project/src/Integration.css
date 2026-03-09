@@ -12,6 +12,8 @@ body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-light);
+  height: 100vh;
+  width: 100%;
 }
 
 .dashboard-container {
@@ -59,7 +61,7 @@ body {
 /* Main Content Area */
 .main-content {
   flex: 1;
-  padding: 4rem;
+  padding: 0rem 4rem;
   overflow-y: auto;
 }
 
@@ -260,4 +262,22 @@ body {
   border: none;
   border-radius: 10px;
   cursor: pointer;
+}
+
+/* Integration.css additions */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  /* Keeps buttons at the bottom of the card */
+}
+
+.dashboard-btn {
+  background: #38b2ac !important;
+  /* Teal color */
+}
+
+.dashboard-btn:hover {
+  background: #2c7a7b !important;
 }

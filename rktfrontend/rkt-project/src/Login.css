@@ -15,10 +15,11 @@ body{
 
 .login-card {
     background: white;
-    padding: 40px;
+    padding: 50px;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    height: 60%;
+    height: 70%;
+    width: 25%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -34,8 +35,11 @@ body{
 }
 
 .login-header img{
+  display: flex;
+  top: 20px;
   height: 100px;
-  width: 150px; 
+  width: 15 0px; 
+  cursor: none;
 }
 
 .login-header p{
@@ -99,4 +103,52 @@ body{
 
 form{
     width: 100%;
+}
+
+/* --- Add these to your existing Login.css --- */
+
+.label-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.forgot-link {
+    font-size: 0.8rem;
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+.login-footer {
+    margin-top: 2rem;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1.5rem;
+}
+
+.login-footer p {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.signup-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.signup-link:hover {
+    color: #4338ca;
+}
+
+/* Adjust the login button margin if needed */
+.login-btn {
+    margin-top: 1rem;
+    /* keep your existing styles */
 }
