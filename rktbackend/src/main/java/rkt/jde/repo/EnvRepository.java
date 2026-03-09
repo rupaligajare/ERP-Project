@@ -8,5 +8,5 @@ import rkt.jde.entity.ErpEnvironment;
 
 public interface EnvRepository extends JpaRepository<ErpEnvironment, Long> {
 	
-    Optional<ErpEnvironment> findByEnvName(String envName);
+    Optional<ErpEnvironment> findByEnvName(String envName); //
 }
