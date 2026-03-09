@@ -12,8 +12,6 @@ body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-light);
-  height: 100vh;
-  width: 100%;
 }
 
 .dashboard-container {
@@ -24,10 +22,10 @@ body {
 
 /* Sidebar Styling - Exactly as per Screenshot */
 .sidebar {
-  width: 260px;
+  width: 250px;
   background-color: var(--white);
   border-right: 1px solid var(--border);
-  padding: 1rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
 }
@@ -38,8 +36,9 @@ body {
 }
 
 .logo-image {
-  max-width: 100%;
-  height: 100px;
+    height: 80px; /* Aligned with Integration style */
+  object-fit: contain;
+  margin-bottom: 0.5rem;
 }
 
 .nav-item {
@@ -61,8 +60,9 @@ body {
 /* Main Content Area */
 .main-content {
   flex: 1;
-  padding: 0rem 4rem;
-  overflow-y: auto;
+  padding: 1rem 20px;
+  height: 100vh;
+  width: 80%;
 }
 
 .content-header h1 {
@@ -264,20 +264,6 @@ body {
   cursor: pointer;
 }
 
-/* Integration.css additions */
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: auto;
-  /* Keeps buttons at the bottom of the card */
-}
-
-.dashboard-btn {
-  background: #38b2ac !important;
-  /* Teal color */
-}
-
-.dashboard-btn:hover {
-  background: #2c7a7b !important;
+.button-group button{
+  margin: 5px;
 }

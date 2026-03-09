@@ -1,7 +1,8 @@
 /* SignUp.css */
 
 .signup-container {
-    max-width: 650px; /* Increased width to accommodate the grid */
+    max-width: 650px;
+    /* Increased width to accommodate the grid */
     margin: 40px auto;
     padding: 35px;
     background-color: #ffffff;
@@ -21,8 +22,10 @@
 /* The Grid Layout for the 7 fields */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: 15px 25px; /* Vertical and horizontal spacing */
+    grid-template-columns: 1fr 1fr;
+    /* Two equal columns */
+    gap: 15px 25px;
+    /* Vertical and horizontal spacing */
 }
 
 /* Make sure specific fields take full width if needed */
@@ -42,7 +45,7 @@
     font-weight: 500;
 }
 
-.input-group input, 
+.input-group input,
 .input-group select {
     width: 100%;
     padding: 10px 14px;
@@ -60,7 +63,8 @@
 }
 
 .signup-button {
-    grid-column: span 2; /* Button stretches across both columns */
+    grid-column: span 2;
+    /* Button stretches across both columns */
     margin-top: 25px;
     padding: 14px;
     background-color: #4a90e2;
@@ -100,15 +104,28 @@
     font-size: 14px;
 }
 
-.status-message.success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-.status-message.error { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+.status-message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.status-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
 
 /* Responsive: Stack columns on small screens */
 @media (max-width: 600px) {
     .form-grid {
         grid-template-columns: 1fr;
     }
-    .full-width, .signup-button, .auth-footer, .status-message {
+
+    .full-width,
+    .signup-button,
+    .auth-footer,
+    .status-message {
         grid-column: span 1;
     }
 }
