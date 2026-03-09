@@ -50,7 +50,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
+    } //
 
     // Add this bean to explicitly allow your React Frontend
     @Bean
