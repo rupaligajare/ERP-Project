@@ -35,26 +35,22 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public String registerUser(UserDto.RegisterRequest regReq) {
-        // 1. Check if username (mapped to name) exists
+        // 1. Check if username exists
         if (userRepository.existsByName(regReq.getUsername())) {
             return "Error: Username already exists!";
         }
         
-        // 2. Map all 7 fields from DTO to Entity
         User user = new User();
-        user.setName(regReq.getUsername()); // Login ID
+        user.setName(regReq.getUsername());
         user.setPassword(passwordEncoder.encode(regReq.getPassword()));
         user.setFullName(regReq.getFullName());
         user.setEmail(regReq.getEmail());
         user.setPhone(regReq.getPhone());
         user.setCompany(regReq.getCompany());
         
-        // Handle roles: if DTO roles are empty, set default
-        if (regReq.getRoles() != null && !regReq.getRoles().isEmpty()) {
-            user.setRoles(regReq.getRoles());
-        } else {
-            user.setRoles(Collections.singletonList("ROLE_USER"));
-        }
+        // SECURITY FIX: Always default to ROLE_USER
+        // This ignores any 'roles' field sent from the frontend
+        user.setRoles(Collections.singletonList("ROLE_USER"));
         
         userRepository.save(user);
         return "User registered successfully";
