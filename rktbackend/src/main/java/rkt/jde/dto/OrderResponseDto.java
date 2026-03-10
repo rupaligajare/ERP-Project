@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderResponseDto {
  private String orderNumber;
- private String customerOrVendor;
- private Double totalAmount;
+ private String customerName; // Matches order.customerName in React
+ private Double amount;
  private String status;
 
  // Constructor, Getters, Setters

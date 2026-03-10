@@ -23,9 +23,11 @@ public class SalesController {
  @Autowired
  private SalesServiceImpl salesService;
 
- @GetMapping("/list")
- @PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
- public ResponseEntity<List<OrderResponseDto>> getSales(@RequestParam String company) {
-     return ResponseEntity.ok(salesService.getOrdersByCompany(company));
- }
+
+//In SalesController.java
+@GetMapping("/list")
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SALES', 'ROLE_USER')") // Add 'ROLE_USER'
+public ResponseEntity<List<OrderResponseDto>> getSales(@RequestParam String company) {
+  return ResponseEntity.ok(salesService.getOrdersByCompany(company));
+}
 }

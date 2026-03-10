@@ -44,20 +44,10 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                // 1. Public Endpoints (No login required)
+               
                 .requestMatchers("/api/auth/**").permitAll() 
-
-                // 2. Sales Endpoints (Requires ADMIN or SALES role)
-                .requestMatchers("/api/sales/**").hasAnyRole("ADMIN", "SALES")
-
-                // 3. Purchase Endpoints (Requires ADMIN or PURCHASE role)
-                .requestMatchers("/api/purchase/**").hasAnyRole("ADMIN", "PURCHASE")
-
-                // 4. Inventory Endpoints (Requires ADMIN or INVENTORY role)
-                .requestMatchers("/api/inventory/**").hasAnyRole("ADMIN", "INVENTORY")
-
-                // 5. Technical JDE Endpoints (Requires ADMIN or TECH role)
-                .requestMatchers("/api/jde/**").hasAnyRole("ADMIN", "JDE_TECH")
+                .requestMatchers("/api/jde/**").permitAll() 
+                .requestMatchers("/api/sales/**").permitAll() 
                 
                 // 6. Profile & Other routes (Anyone authenticated)
                 .anyRequest().authenticated()

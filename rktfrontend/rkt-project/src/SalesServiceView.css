@@ -1,0 +1,12 @@
+.status-pill {
+    padding: 5px 15px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-pill.shipped {
+    background-color: #e6fffa;
+    color: #2c7a7b;
+    border: 1px solid #81e6d9;
+}

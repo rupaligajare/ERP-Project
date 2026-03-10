@@ -14,7 +14,7 @@ import rkt.jde.entity.User;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "mysecretkeymysecretkeymysecretkey12";
+    private final String SECRET = "mysecretkeymysecretkeymysecretkeymysecretkey12";
     
     private Key getSignKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
@@ -30,8 +30,13 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parser().setSigningKey(SECRET)
-            .parseClaimsJws(token).getBody().getSubject();
+        // FIX: Use setSigningKey(getSignKey()) instead of setSigningKey(SECRET)
+        return Jwts.parserBuilder()
+            .setSigningKey(getSignKey()) 
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .getSubject();
     }
 
     public boolean validateToken(String token, User user) {
@@ -39,4 +44,3 @@ public class JwtUtil {
     
     }
 }
-
