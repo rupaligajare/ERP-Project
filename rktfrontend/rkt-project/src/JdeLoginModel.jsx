@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const JdeLoginModal = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: 'demo_user', // Pre-filled for demo
+    username: 'demo_user',
     password: 'demo_pass123', 
     environment: 'DV920'
   });
@@ -19,10 +21,39 @@ export const JdeLoginModal = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json(); 
+        // Backend should return: { token, role, department }
+        // e.g., { role: 'USER', department: 'SALES' } or { role: 'ADMIN' }
+
+        localStorage.setItem("jde_token", data.token);
+        localStorage.setItem("active_env", formData.environment);
+        localStorage.setItem("user_role", data.role);
+        
         setStatus(`Connected to ${formData.environment}!`);
-        // Save token and open the Inventory/Sales pages
-        console.log("JDE Token:", data.token);
+
+        // --- THE MASTER SWITCH LOGIC ---
+        if (data.role === 'SUPERADMIN') {
+          navigate('/superadmin/dashboard');
+        } 
+        else if (data.role === 'ADMIN') {
+          navigate('/admin/dashboard');
+        } 
+        else {
+          // It's a regular user, check their business function
+          switch (data.department) {
+            case 'SALES':
+              navigate('/sales/dashboard');
+              break;
+            case 'PROCUREMENT':
+              navigate('/procurement/dashboard');
+              break;
+            case 'INVENTORY':
+              navigate('/inventory/inquiry');
+              break;
+            default:
+              navigate('/dashboard'); // General fallback
+          }
+        }
       } else {
         setStatus('Connection Failed');
       }
@@ -34,35 +65,8 @@ export const JdeLoginModal = () => {
   return (
     <div className="login-card">
       <h2>KT Oracle Integration</h2>
-      
-      <div className="input-group">
-        <label>Select Environment</label>
-        <select 
-          value={formData.environment} 
-          onChange={(e) => setFormData({...formData, environment: e.target.value})}
-        >
-          <option value="DV920">Development (DV920)</option>
-          <option value="PY920">Testing (PY920)</option>
-          <option value="PD920">Production (PD920)</option>
-        </select>
-      </div>
-
-      <input 
-        type="text" 
-        placeholder="Username" 
-        value={formData.username}
-        onChange={(e) => setFormData({...formData, username: e.target.value})}
-      />
-      
-      <input 
-        type="password" 
-        placeholder="Password" 
-        value={formData.password}
-        onChange={(e) => setFormData({...formData, password: e.target.value})}
-      />
-
+      {/* ... your select and inputs ... */}
       <button onClick={handleLogin}>Verify & Connect</button>
-      
       <p className={`status-text ${status.toLowerCase()}`}>{status}</p>
     </div>
   );
