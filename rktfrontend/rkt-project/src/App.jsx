@@ -1,5 +1,5 @@
 import React from "react";
-import SalesServiceView from './SalesServiceView';
+import SalesServiceView from "./SalesServiceView";
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,17 +12,20 @@ import InventoryInquiry from "./InventoryInquiry";
 import JDEDashboard from "./JDEDashboard";
 import SignUp from "./Signup";
 import SuperAdminDashboard from "./SuperAdminDashboard"; // You'll create this next
+import OrgAdminDashboard from "./OrgAdminDashboard";
 
-// Enhanced PrivateRoute to check for specific roles
 const ProtectedRoute = ({ children, allowedRole }) => {
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user")); // Store user object on login
+  const user = JSON.parse(localStorage.getItem("user")); 
 
   if (!token) return <Navigate to="/" />;
   
-  // If a specific role is required (like SUPERADMIN), check it here
+  // If role is required and doesn't match
   if (allowedRole && user?.role !== allowedRole) {
-    return <Navigate to="/dashboard" />; // Redirect regular users to their own dashboard
+    // Redirect to their appropriate home base
+    if (user?.role === 'ROLE_SUPERADMIN') return <Navigate to="/superadmin/dashboard" />;
+    if (user?.role === 'ROLE_ORG_ADMIN') return <Navigate to="/client/dashboard" />;
+    return <Navigate to="/dashboard" />;
   }
 
   return children;
@@ -35,7 +38,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Login isAdmin={false} />} />
         <Route path="/super-login" element={<Login isAdmin={true} />} />
-        
+
         <Route path="/register" element={<SignUp />} />
 
         {/* Superadmin Dashboard - Strictly Protected */}
@@ -44,6 +47,16 @@ function App() {
           element={
             <ProtectedRoute allowedRole="ROLE_SUPERADMIN">
               <SuperAdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* New Org Admin Route - Also Protected */}
+        <Route
+          path="/client/dashboard"
+          element={
+            <ProtectedRoute allowedRole="ROLE_ORG_ADMIN">
+              <OrgAdminDashboard />
             </ProtectedRoute>
           }
         />

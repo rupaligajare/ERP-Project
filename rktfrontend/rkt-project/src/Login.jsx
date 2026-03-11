@@ -9,16 +9,6 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Inside your Login success logic:
-const role = response.data.roles[0];
-localStorage.setItem("role", role);
-localStorage.setItem("company", response.data.company);
-
-if (role === "ROLE_SUPERADMIN") {
-  navigate("/superadmin/dashboard");
-} else {
-  navigate("/client/dashboard");
-}
   // Detect if we are on the super-login route
   // Change this line in Login.js
   const isSuperAdminPath = window.location.pathname === "/super-login" || window.location.pathname === "/admin-login";
