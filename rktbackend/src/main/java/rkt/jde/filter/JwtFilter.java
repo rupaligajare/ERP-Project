@@ -52,16 +52,22 @@ public class JwtFilter extends OncePerRequestFilter {
                 User user = userService.loadUserByUsername(username);
 
                 if (jwtUtil.validateToken(token, user)) {
+                    // DEBUG LINES
+                    System.out.println("Processing Request for: " + username);
+                    System.out.println("Roles extracted from User Entity: " + user.getRoles());
+
                     UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                             user,
                             null,
                             user.getRoles().stream()
                                 .map(SimpleGrantedAuthority::new)
-                                .toList()
+                                .collect(Collectors.toList())
                         );
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    System.out.println("SecurityContext updated with authorities: " + 
+                                        SecurityContextHolder.getContext().getAuthentication().getAuthorities());
                 }
             }
         }

@@ -1,6 +1,5 @@
 import React from "react";
 import SalesServiceView from './SalesServiceView';
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,57 +9,79 @@ import {
 import Login from "./Login";
 import Integration from "./Integration";
 import InventoryInquiry from "./InventoryInquiry";
-import JDEDashboard from "./JDEDashboard"; // Import the new separate component
+import JDEDashboard from "./JDEDashboard";
 import SignUp from "./Signup";
+import SuperAdminDashboard from "./SuperAdminDashboard"; // You'll create this next
 
-const PrivateRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem("token");
-  return isAuthenticated ? children : <Navigate to="/" />;
+// Enhanced PrivateRoute to check for specific roles
+const ProtectedRoute = ({ children, allowedRole }) => {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user")); // Store user object on login
+
+  if (!token) return <Navigate to="/" />;
+  
+  // If a specific role is required (like SUPERADMIN), check it here
+  if (allowedRole && user?.role !== allowedRole) {
+    return <Navigate to="/dashboard" />; // Redirect regular users to their own dashboard
+  }
+
+  return children;
 };
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        {/* Public Routes */}
+        <Route path="/" element={<Login isAdmin={false} />} />
+        <Route path="/super-login" element={<Login isAdmin={true} />} />
+        
         <Route path="/register" element={<SignUp />} />
 
-        {/* 1. The Integrations Hub (The page you already have) */}
+        {/* Superadmin Dashboard - Strictly Protected */}
         <Route
-          path="/dashboard"
+          path="/superadmin/dashboard"
           element={
-            <PrivateRoute>
-              <Integration />
-            </PrivateRoute>
+            <ProtectedRoute allowedRole="ROLE_SUPERADMIN">
+              <SuperAdminDashboard />
+            </ProtectedRoute>
           }
         />
 
-        {/* 2. The New Separate Role-Based Dashboard */}
+        {/* Regular User / Org Admin Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Integration />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/jde-services"
           element={
-            <PrivateRoute>
+            <ProtectedRoute>
               <JDEDashboard />
-            </PrivateRoute>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/sales"
           element={
-            <PrivateRoute>
+            <ProtectedRoute>
               <SalesServiceView />
-            </PrivateRoute>
+            </ProtectedRoute>
           }
         />
 
-        {/* 3. The Specific Module Workspace */}
         <Route
           path="/inventory"
           element={
-            <PrivateRoute>
+            <ProtectedRoute>
               <InventoryInquiry />
-            </PrivateRoute>
+            </ProtectedRoute>
           }
         />
 

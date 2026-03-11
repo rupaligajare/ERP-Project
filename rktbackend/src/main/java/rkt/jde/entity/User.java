@@ -24,7 +24,7 @@ public class User {
     private String phone;
     private String company;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER) // Make sure this is EAGER
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     private List<String> roles;
 }

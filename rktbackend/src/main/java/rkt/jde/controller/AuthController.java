@@ -27,43 +27,46 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        try {
-            User user = new User();
-            
-            // 1. Mapping 'username' from React/DTO to 'name' in Entity for Security
-            user.setName(request.getUsername()); 
-            
-            // 2. Encoding password for security before it hits the DB
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            
-            // 3. Mapping the extra 5 fields from your multi-field signup
-            user.setFullName(request.getFullName());
-            user.setPhone(request.getPhone());
-            user.setEmail(request.getEmail());
-            user.setCompany(request.getCompany());
-            user.setRoles(request.getRoles());
-            
-            // 4. Passing to service (where the duplicate check happens)
-            userService.saveUser(user);
-            
-            return ResponseEntity.ok("User registered successfully");
-        } catch (RuntimeException e) {
-            // Catches "Username already taken" from UserService
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Registration failed: " + e.getMessage());
-        }
+        // 1. Initialize the Entity
+        User user = new User();
+        
+        // 2. Map 'username' from JSON/DTO to 'name' in Entity
+        // This is the most important line!
+        user.setName(request.getUsername()); 
+        
+        // 3. Encode the password using the Bean in SecurityConfig
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        
+        // 4. Map the rest of the fields
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setCompany(request.getCompany());
+        user.setRoles(request.getRoles()); // List<String> to List<String>
+        
+        // 5. Save the Entity via Service/Repository
+        userService.saveUser(user);
+        
+        return ResponseEntity.ok("User registered successfully");
     }
-
+   
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody AuthRequest request) {
-        // Authenticating via the 'name' field (which stores the username)
-        User user = userService.loadUserByUsername(request.getName());
-        
-        if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            String token = jwtUtil.generateToken(user);
-            return ResponseEntity.ok(token);
-        }
-        return ResponseEntity.status(401).body("Invalid credentials");
+    User user = userService.loadUserByUsername(request.getName());
+    
+    if (user == null) {
+        System.out.println("DEBUG: User not found in DB: " + request.getName());
+        return ResponseEntity.status(401).body("User not found");
     }
+
+    boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+    System.out.println("DEBUG: Password Match Result: " + passwordMatches);
+
+    if (passwordMatches) {
+        String token = jwtUtil.generateToken(user);
+        return ResponseEntity.ok(token);
+    }
+    
+    return ResponseEntity.status(401).body("Invalid credentials");
+}
 }

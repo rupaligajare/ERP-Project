@@ -34,28 +34,25 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) 
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+        http.csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-               
-                .requestMatchers("/api/auth/**").permitAll() 
-                .requestMatchers("/api/jde/**").permitAll() 
-                .requestMatchers("/api/sales/**").permitAll() 
-                
-                // 6. Profile & Other routes (Anyone authenticated)
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/jde/**").permitAll()
+                .requestMatchers("/api/sales/**").permitAll()
+                .requestMatchers("/api/client/**").hasAnyRole("ORG_ADMIN", "SUPERADMIN")
+                .requestMatchers("/api/superadmin/**").hasAnyAuthority("ROLE_SUPERADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+   
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

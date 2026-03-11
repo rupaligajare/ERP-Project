@@ -15,8 +15,7 @@ public class UserDto {
         private String password;
         private List<String> roles;
     }
-    
-    
+   
 
     @Data
     public static class AuthRequest {
