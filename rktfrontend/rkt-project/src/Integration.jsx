@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 1. IMPORT THIS
+import { useNavigate } from "react-router-dom";
 import "./Integration.css";
 
 const Integration = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedERP, setSelectedERP] = useState(null);
   const [connectedSystems, setConnectedSystems] = useState([]);
-
-  // 2. INITIALIZE NAVIGATE
   const navigate = useNavigate();
 
+  // 1. CLEARED STATE: No more hardcoded demo credentials
   const [config, setConfig] = useState({
-    username: "demo_user",
-    password: "demo_pass123",
+    username: "",
+    password: "",
     env: "DV920",
-    role: "*ALL",
   });
 
   useEffect(() => {
@@ -57,57 +55,72 @@ const Integration = () => {
     if (id === "jde") {
       localStorage.removeItem("jde_token");
       localStorage.removeItem("jde_env");
-      localStorage.removeItem("jde_role");
+      localStorage.removeItem("user_role");
     }
     setConnectedSystems((prev) => prev.filter((systemId) => systemId !== id));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  
+  const appToken = localStorage.getItem("token"); 
 
-    const payload = {
-      username: config.username,
-      password: config.password,
-      environment: config.env,
-    };
+  try {
+    const response = await fetch("http://localhost:8080/api/jde/connect", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${appToken}` 
+      },
+      body: JSON.stringify({
+        username: config.username,
+        password: config.password,
+        environment: config.env
+      }),
+    });
 
-    try {
-      // NOTE: For offline demo, you can bypass this fetch block
-      const response = await fetch("http://localhost:8080/api/jde/connect", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    if (response.ok) {
+      // IMPORTANT: Parse the response body first!
+      const data = await response.json(); 
 
-      if (response.ok) {
-        const data = await response.json();
+      // Save the JDE session token and the verified role
+      localStorage.setItem("jde_token", data.token);
+      localStorage.setItem("user_role", data.role);
+      setConnectedSystems(["jde"]);
+      setShowModal(false);
 
-        // Save session data
-        localStorage.setItem("jde_token", data.token);
-        localStorage.setItem("jde_env", config.env);
-        localStorage.setItem("jde_role", config.role);
-
-        setConnectedSystems((prev) => [...prev, selectedERP.id]);
-        setShowModal(false);
-
-        // 3. USE NAVIGATE HERE
-        alert(`Connected Successfully!`);
-        navigate("/jde-services");
-      } else {
-        alert("Connection failed. Check your demo credentials.");
+      // DYNAMIC ROUTING
+      console.log("Navigating for role:", data.role);
+      
+      switch (data.role) {
+        case "ROLE_SUPERADMIN":
+          navigate("/superadmin/dashboard");
+          break;
+        case "ROLE_ORG_ADMIN":
+        case "ROLE_ADMIN":
+          navigate("/admin/dashboard");
+          break;
+        case "ROLE_USER":
+          navigate("/jde-services"); 
+          break;
+        default:
+          navigate("/integration");
       }
-    } catch (error) {
-      // OFFLINE FALLBACK: If backend isn't running, still allow demo navigation
-      console.warn("Backend not detected, using demo bypass.");
-      localStorage.setItem("jde_token", "demo-token");
-      localStorage.setItem("jde_env", config.env);
-      localStorage.setItem("jde_role", config.role);
-      navigate("/jde-services");
+    } else if (response.status === 401) {
+      alert("Unauthorized: Your JDE credentials or App session is invalid.");
+    } else {
+      const errorText = await response.text();
+      alert("Error: " + errorText);
     }
-  };
+  } catch (err) {
+    console.error("Connection Error:", err);
+    alert("Connection Error: Unable to reach the server.");
+  }
+};
 
   return (
     <div className="dashboard-container">
+      {/* SIDEBAR REMAINS UNCHANGED */}
       <aside className="sidebar">
         <div className="logo-container">
           <img src="image.jpeg" alt="Logo" className="logo-image" />
@@ -156,14 +169,19 @@ const Integration = () => {
 
                 {isConnected ? (
                   <div className="button-group">
-                    {/* This button allows the user to jump back into the JDE Dashboard */}
                     <button
                       className="configure-btn dashboard-btn"
-                      onClick={() => navigate("/jde-services")}
+                      onClick={() => {
+                        const role = localStorage.getItem("user_role");
+                        if (role === "ROLE_SUPERADMIN")
+                          navigate("/superadmin/dashboard");
+                        else if (role === "ROLE_ORG_ADMIN")
+                          navigate("/admin/dashboard");
+                        else navigate("/dashboard");
+                      }}
                     >
                       Open Dashboard
                     </button>
-
                     <button
                       className="disconnect-btn"
                       onClick={() => handleDisconnect(erp.id)}
@@ -185,7 +203,7 @@ const Integration = () => {
         </section>
       </main>
 
-      {/* Modal logic remains the same... */}
+      {/* MODAL: DESIGN KEPT, ROLE INPUT DELETED */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -199,6 +217,7 @@ const Integration = () => {
                     name="username"
                     value={config.username}
                     onChange={handleInputChange}
+                    placeholder="Enter JDE Username"
                     required
                   />
                 </div>
@@ -209,15 +228,14 @@ const Integration = () => {
                     name="password"
                     value={config.password}
                     onChange={handleInputChange}
+                    placeholder="Enter JDE Password"
                     required
                   />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>
-                    {selectedERP.id === "jde" ? "Environment" : "Client ID"}
-                  </label>
+                  <label>Environment</label>
                   <select
                     name="env"
                     value={config.env}
@@ -229,17 +247,8 @@ const Integration = () => {
                     <option value="PD920">Production (PD920)</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>
-                    {selectedERP.id === "jde" ? "Role" : "System Number"}
-                  </label>
-                  <input
-                    type="text"
-                    name="role"
-                    value={config.role}
-                    onChange={handleInputChange}
-                  />
-                </div>
+                {/* EMPTY SPACE: This preserves your original design grid */}
+                <div className="form-group"></div>
               </div>
               <div className="modal-actions">
                 <button

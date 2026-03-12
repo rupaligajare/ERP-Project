@@ -1,5 +1,8 @@
 package rkt.jde.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -48,25 +51,33 @@ public class AuthController {
         userService.saveUser(user);
         
         return ResponseEntity.ok("User registered successfully");
-    }
+    }   
+  
    
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest request) {
-    User user = userService.loadUserByUsername(request.getName());
-    
-    if (user == null) {
-        System.out.println("DEBUG: User not found in DB: " + request.getName());
-        return ResponseEntity.status(401).body("User not found");
-    }
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) { // Changed String to ?
+    	
+        System.out.println("DEBUG: Incoming Login Request - Name: [" + request.getName() + "]");
 
-    boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
-    System.out.println("DEBUG: Password Match Result: " + passwordMatches);
-
-    if (passwordMatches) {
-        String token = jwtUtil.generateToken(user);
-        return ResponseEntity.ok(token);
+        User user = userService.loadUserByUsername(request.getName());
+        
+        if (user == null) {
+            return ResponseEntity.status(401).body("User not found");
+        }
+        
+        
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            String token = jwtUtil.generateToken(user);
+            
+           
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("role", user.getRoles().get(0)); 
+            response.put("name", user.getName());
+            
+            return ResponseEntity.ok(response); 
+        }
+        
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
-    
-    return ResponseEntity.status(401).body("Invalid credentials");
-}
 }

@@ -1,55 +1,75 @@
 package rkt.jde.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import rkt.jde.entity.ErpEnvironment;
+import rkt.jde.entity.User;
 import rkt.jde.repo.EnvRepository;
+import rkt.jde.repo.UserRepository;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/jde")
+@CrossOrigin(origins = "http://localhost:3000")
 public class JdeAuthController {
 
     @Autowired
     private EnvRepository envRepo;
 
+    @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder; // ADD THIS
+
     @PostMapping("/connect")
     public ResponseEntity<?> connectToJde(@RequestBody Map<String, String> loginData) {
-        String user = loginData.get("username");
-        String pass = loginData.get("password");
+        String username = loginData.get("username");
+        String password = loginData.get("password"); // Plain text from React
         String envName = loginData.get("environment");
 
-        // 1. Internal URL Lookup from DB
         ErpEnvironment env = envRepo.findByEnvName(envName)
-            .orElseThrow(() -> new RuntimeException("Environment not found in DB"));
+            .orElseThrow(() -> new RuntimeException("Environment " + envName + " not found."));
 
-        // 2. Demo Mock Check (For your Demo Testing)
-     // Corrected Mock Response for your Demo
-        if ("demo_user".equals(user) && "demo_pass123".equals(pass)) {
-            Map<String, Object> response = new HashMap<>();
-            
-            // Use .put() instead of .add()
-            response.put("status", "Connected");
-            response.put("token", "DEMO_JWT_TOKEN_999");
-            response.put("environment", envName);
-            response.put("ais_url_used", env.getAisBaseUrl()); 
-
-            return ResponseEntity.ok(response);
+        Optional<User> userOpt = userRepo.findByName(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body("User not found.");
         }
 
-        // 3. Real JDE AIS Call (If not using demo credentials)
-        String jdeTokenUrl = env.getAisBaseUrl() + "/v2/tokenrequest";
-        // Use RestTemplate to POST {username, password, deviceName} to jdeTokenUrl
-        
-        return ResponseEntity.status(401).body("Invalid JDE Credentials");
+        User dbUser = userOpt.get();
+
+        // 3. CORRECT WAY TO VERIFY ENCODED PASSWORDS
+        if (!passwordEncoder.matches(password, dbUser.getPassword())) {
+            return ResponseEntity.status(401).body("Invalid Password.");
+        }
+
+        // 4. Determine Primary Role (Priority Check)
+        String primaryRole = "ROLE_USER"; 
+        List<String> roles = dbUser.getRoles();
+
+        if (roles.contains("ROLE_SUPERADMIN")) {
+            primaryRole = "ROLE_SUPERADMIN";
+        } else if (roles.contains("ROLE_ORG_ADMIN")) { // Added ORG_ADMIN based on your DB logs
+            primaryRole = "ROLE_ORG_ADMIN";
+        } else if (roles.contains("ROLE_ADMIN")) {
+            primaryRole = "ROLE_ADMIN";
+        }
+
+        // 5. Build Response
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "Connected");
+        response.put("token", "JWT_" + java.util.UUID.randomUUID().toString());
+        response.put("role", primaryRole);
+        response.put("fullName", dbUser.getFullName());
+        response.put("environment", envName);
+        response.put("ais_url", env.getAisBaseUrl());
+
+        return ResponseEntity.ok(response);
     }
 }

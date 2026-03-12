@@ -14,8 +14,8 @@ public class User {
     private long id;
     
     @Column(unique = true, nullable = false)
-    private String name; // Stores the 'username' from the signup page
-    
+    private String name;
+   
     @Column(nullable = false)
     private String password;
     

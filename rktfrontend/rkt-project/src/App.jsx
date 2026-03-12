@@ -1,31 +1,37 @@
 import React from "react";
-import SalesServiceView from "./SalesServiceView";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Components
 import Login from "./Login";
-import Integration from "./Integration";
-import InventoryInquiry from "./InventoryInquiry";
-import JDEDashboard from "./JDEDashboard";
 import SignUp from "./Signup";
-import SuperAdminDashboard from "./SuperAdminDashboard"; // You'll create this next
+import Integration from "./Integration";
+import SuperAdminDashboard from "./SuperAdminDashboard";
 import OrgAdminDashboard from "./OrgAdminDashboard";
+import JDEDashboard from "./JDEDashboard";
+import SalesServiceView from "./SalesServiceView";
+import InventoryInquiry from "./InventoryInquiry";
 
-const ProtectedRoute = ({ children, allowedRole }) => {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user")); 
+// Updated ProtectedRoute
+const ProtectedRoute = ({ children, allowedRoles }) => { // Changed to allowedRoles (plural)
+  const publicToken = localStorage.getItem("token");
+  const jdeToken = localStorage.getItem("jde_token");
+  const userRole = localStorage.getItem("user_role");
 
-  if (!token) return <Navigate to="/" />;
-  
-  // If role is required and doesn't match
-  if (allowedRole && user?.role !== allowedRole) {
-    // Redirect to their appropriate home base
-    if (user?.role === 'ROLE_SUPERADMIN') return <Navigate to="/superadmin/dashboard" />;
-    if (user?.role === 'ROLE_ORG_ADMIN') return <Navigate to="/client/dashboard" />;
-    return <Navigate to="/dashboard" />;
+  if (!publicToken) return <Navigate to="/" />;
+
+  const jdePages = ["/sales", "/inventory", "/jde-services"];
+  if (jdePages.includes(window.location.pathname) && !jdeToken) {
+    return <Navigate to="/integration" />; 
+  }
+
+  // 3. Updated Role Protection logic
+  if (allowedRoles) {
+    const isAuthorized = allowedRoles.includes(userRole);
+    if (!isAuthorized) {
+      if (userRole === 'ROLE_SUPERADMIN') return <Navigate to="/superadmin/dashboard" />;
+      if (userRole === 'ROLE_ORG_ADMIN' || userRole === 'ROLE_ADMIN') return <Navigate to="/admin/dashboard" />;
+      return <Navigate to="/integration" />;
+    }
   }
 
   return children;
@@ -36,12 +42,20 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Login isAdmin={false} />} />
-        <Route path="/super-login" element={<Login isAdmin={true} />} />
-
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<SignUp />} />
 
-        {/* Superadmin Dashboard - Strictly Protected */}
+        {/* The Selection Portal */}
+        <Route
+          path="/integration"
+          element={
+            <ProtectedRoute>
+              <Integration />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Superadmin Routes */}
         <Route
           path="/superadmin/dashboard"
           element={
@@ -51,9 +65,9 @@ function App() {
           }
         />
 
-        {/* New Org Admin Route - Also Protected */}
+        {/* Client Admin Routes */}
         <Route
-          path="/client/dashboard"
+          path="/admin/dashboard"
           element={
             <ProtectedRoute allowedRole="ROLE_ORG_ADMIN">
               <OrgAdminDashboard />
@@ -61,16 +75,7 @@ function App() {
           }
         />
 
-        {/* Regular User / Org Admin Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Integration />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* JDE Specific Routes */}
         <Route
           path="/jde-services"
           element={
@@ -79,7 +84,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/sales"
           element={
@@ -88,7 +92,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/inventory"
           element={
@@ -98,6 +101,7 @@ function App() {
           }
         />
 
+        {/* Default Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

@@ -41,7 +41,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+            		.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight
+            	    .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/jde/**").permitAll()
                 .requestMatchers("/api/sales/**").permitAll()
                 .requestMatchers("/api/client/**").hasAnyRole("ORG_ADMIN", "SUPERADMIN")

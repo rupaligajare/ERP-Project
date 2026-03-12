@@ -26,6 +26,14 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        // Use startsWith and ensure it handles the slash correctly
+        return path.startsWith("/api/auth/") || path.startsWith("/api/jde/connect");
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
